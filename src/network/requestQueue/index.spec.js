@@ -82,7 +82,7 @@ describe('Network > RequestQueue', () => {
         enforceRequestTimeout: true,
         requestTimeout: requestTimeout,
       })
-      requestQueue.scheduleRequestTimeoutCheck()
+      await requestQueue.scheduleRequestTimeoutCheck()
       requestQueue.push(request)
 
       expect(requestQueue.pending.length).toEqual(0)
@@ -458,7 +458,7 @@ describe('Network > RequestQueue', () => {
       requestQueue.scheduleRequestTimeoutCheck()
       requestQueue.push(request)
 
-      await sleep(requestTimeout + 10)
+      await sleep(requestTimeout + 20)
 
       expect(eventCalled).toHaveBeenCalledWith({
         id: expect.any(Number),

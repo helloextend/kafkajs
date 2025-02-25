@@ -1,0 +1,32 @@
+name: Report Repo Health
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs at 2:35am EST on Sundays
+    - cron: '35 6 * * 0'
+jobs:
+  report-repo-health:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get App Token
+      uses: helloextend/gha-reusable-workflows/.github/actions/get-app-token@v13.5.2
+      id: get-app-token
+      with:
+        app-id: ${{ secrets.APP_ID }}
+        app-pem: ${{ secrets.APP_PEM }}
+    - name: Report Repo Health
+      id: repo-health
+      uses: helloextend/gha-reusable-workflows/.github/actions/report-repo-health@v13.5.2
+      env:
+        GH_TOKEN: ${{ steps.get-app-token.outputs.app-token }}
+    - name: Forward repo health stats to datadog
+      uses: helloextend/gha-reusable-workflows/.github/actions/datadog-forwarder@v13.5.2
+      with:
+        data-dog-api-key: ${{ secrets.DD_API_KEY }}
+        data-dog-app-key: ${{ secrets.DD_APP_KEY }}
+        ddtags: env:CI
+        service: ${{ github.event.repository.name }}
+        message: '[DEVX-INFO] ${{ github.server_url }}/${{github.repository}}'
+        hostname: ${{ github.repository }}
+        additionalProperties:
+          numberOfOpenPullRequests=${{ steps.repo-health.outputs.numberOfOpenPullRequests }},lastCommitToMainDate=${{ steps.repo-health.outputs.lastCommitToMainDate }}

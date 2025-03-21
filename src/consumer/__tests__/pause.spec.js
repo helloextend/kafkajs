@@ -246,6 +246,7 @@ describe('Consumer', () => {
       await waitForConsumerToJoinGroup(consumer)
       await waitForMessages(messagesConsumed, { number: 5 })
       expect(consumer.paused()).toContainEqual({ topic: topics[0], partitions: [0] })
+      // Check that topics[1] is paused using a more flexible assertion
       expect(consumer.paused().some(p => p.topic === topics[1])).toBe(true)
       shouldPause = false
       resumeCallbacks.forEach(resume => resume())
